@@ -6,6 +6,7 @@ var subreddit = "aww/hot";
 var fetchBuffer = false;
 
 fetchImages(25);
+//Test
 
 // Initializing masonry
 var elem = document.querySelector(".grid");
