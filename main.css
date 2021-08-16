@@ -10,26 +10,47 @@ body {
   background-color: rgb(42 42 71);
 }
 .grid-item {
+  position: relative;
+  border-radius: 7px 7px 0 0px;
+  border-radius: 0 7px;
   border-bottom: 0;
   margin: 0;
-  background-color: rgba(47, 79, 79, 0);
+  background-color: rgba(34, 58, 58, 0);
 }
 
-.grid-item img {
+.mute-button {
+  padding: 0;
+  top: 15px;
+  left: 15px;
+  width: 30px;
+  height: 30px;
+  position: absolute;
+  background-color: #181b2c00;
+  border: none;
+  z-index: 99;
+}
+.mute-button-img {
+  background-color: rgba(0, 0, 0, 0.438);
+  border-radius: 50%;
+  position: auto;
+  color: #181b2c;
+  height: auto;
+  width: 100%;
+}
+
+.grid-item-img {
+  margin: 6px;
   border-radius: 7px;
-  border: solid 2px #181b2c;
-  margin: 3px;
   display: block;
-  width: 26vw;
+  width: 30vw;
   height: 100%;
 }
 
-.grid-item video {
+.grid-item-video {
   border-radius: 7px;
-  border: solid 2px #181b2c;
-  margin: 3px;
+  margin: 6px;
   display: block;
-  width: 26vw;
+  width: 30vw;
   height: 100%;
 }
 
@@ -65,10 +86,10 @@ body {
 
 @media only screen and (max-width: 1200px) {
   .grid-item img {
-    width: 40vw;
+    width: 45vw;
   }
   .grid-item video {
-    width: 40vw;
+    width: 45vw;
   }
 }
 
@@ -89,6 +110,10 @@ body {
 }
 
 /* Let's get this party started */
+
+video::-webkit-media-controls-mute-button {
+  display: none;
+}
 
 ::-webkit-scrollbar {
   width: 5px;
