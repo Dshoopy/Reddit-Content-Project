@@ -119,10 +119,12 @@ function LoadImages(url, isVideo, name) {
         return;
       }
     });
+    $($video)
+      .last()
+      .on("error", (event) => {
+        alert("an error accured: " + event.message);
+      });
 
-    $video.addEventListener("error", (event) => {
-      alert("an error accured: " + event.message);
-    });
     $video.addEventListener("play", function () {
       $video.preload = "auto";
       if (!$audio.muted) {
