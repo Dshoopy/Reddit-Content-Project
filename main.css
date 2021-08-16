@@ -85,10 +85,10 @@ body {
 }
 
 @media only screen and (max-width: 1200px) {
-  .grid-item img {
+  .grid-item-img {
     width: 45vw;
   }
-  .grid-item video {
+  .grid-item-video {
     width: 45vw;
   }
 }
