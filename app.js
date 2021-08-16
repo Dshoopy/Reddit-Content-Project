@@ -122,7 +122,7 @@ function LoadImages(url, isVideo, name) {
 
     $video.addEventListener("error", (event) => {
       log.textContent = log.textContent + `${event.type}: ${event.message}\n`;
-      alert(event);
+      alert(event.error);
     });
     $video.addEventListener("play", function () {
       $video.preload = "auto";
