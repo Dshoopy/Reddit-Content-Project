@@ -120,6 +120,9 @@ function LoadImages(url, isVideo, name) {
       }
     });
 
+    $video.addEventListener("error", (event) => {
+      alert(event);
+    });
     $video.addEventListener("play", function () {
       $video.preload = "auto";
       if (!$audio.muted) {
