@@ -121,7 +121,7 @@ function LoadImages(url, isVideo, name) {
     });
 
     $video.addEventListener("error", (event) => {
-      alert("an error accured: " + JSON.stringify(event.message));
+      alert("an error accured: " + event.message);
     });
     $video.addEventListener("play", function () {
       $video.preload = "auto";
