@@ -4,9 +4,10 @@ var lastRedditPost = "";
 var postCount = 0;
 var subreddit = "aww/hot";
 var fetchBuffer = false;
+var videoArray = [[], []];
+var populatingVideos = false;
 
-fetchImages(25);
-console.log("TEST");
+fetchImages(50);
 
 // Initializing masonry
 var elem = document.querySelector(".grid");
@@ -69,111 +70,15 @@ function TestFunc(url) {
 }
 
 // Load images to the web page
-function LoadImages(url, isVideo, name) {
-  if (document.getElementById(name) != null) {
-    return;
-  }
-  if (!isVideo) {
-    var img = document.createElement("img");
-    img.classList = "grid-item-img";
-  }
-
-  const div = document.createElement("div");
-  div.classList = "grid-item";
-  div.id = "grid-item";
-
-  if (isVideo) {
-    var source = document.createElement("source");
-    source.src = url;
-    var muteButtonImg = document.createElement("img");
-    muteButtonImg.src = "Images/mute-Image.png";
-    muteButtonImg.classList = "mute-button-img";
-    const $video = document.createElement("video");
-    const $audio = document.createElement("audio");
-    const $muteButton = document.createElement("button");
-
-    TestFunc(url)[1] ? null : ($audio.src = TestFunc(url)[0]);
-
-    $video.controls = "controls";
-    $video.preload = "loadedmetadata";
-    $video.id = name;
-    $video.src = url;
-    $video.classList = "grid-item-video";
-    $muteButton.classList = "mute-button";
-    $muteButton.textContent = "";
-    $audio.muted = true;
-    $audio.muted
-      ? (muteButtonImg.src = "Images/mute-Image.png")
-      : (muteButtonImg.src = "Images/unmute-Image.png");
-
-    $muteButton.addEventListener("click", function () {
-      if ($audio.muted) {
-        console.log("unmute");
-        $audio.muted = false;
-        muteButtonImg.src = "Images/unmute-Image.png";
-        return;
-      } else {
-        console.log("mute");
-        $audio.muted = true;
-        muteButtonImg.src = "Images/mute-Image.png";
-        return;
-      }
-    });
-    $($video)
-      .last()
-      .on("error", (event) => {
-        alert("an error accured: " + event.message);
-      });
-
-    $video.addEventListener("play", function () {
-      $video.preload = "auto";
-      if (!$audio.muted) {
-        $audio.play();
-      }
-
-      $audio.currentTime = $video.currentTime;
-    });
-    $video.addEventListener("waiting", function () {
-      $audio.pause();
-      $audio.currentTime = $video.currentTime;
-    });
-    $video.addEventListener("playing", function () {
-      if ($audio.muted) {
-        $audio.play();
-      }
-      $audio.currentTime = $video.currentTime;
-    });
-    $video.addEventListener("pause", function () {
-      $audio.pause();
-      $video.preload = "none";
-      $audio.currentTime = $video.currentTime;
-    });
-
-    $video.addEventListener("timeupdate", function () {
-      if ($audio.muted) {
-        $audio.play();
-      }
-    });
-    $muteButton.appendChild(muteButtonImg);
-    $video.appendChild(source);
-    div.appendChild($muteButton);
-    $video.addEventListener("loadedmetadata", function () {
-      div.appendChild($video);
-      div.appendChild($audio);
-      grid.appendChild(div);
-      msnry.addItems(div);
-      msnry.layout();
-    });
-  } else {
-    img.src = url;
-    img.id = name;
-    img.onload = () => {
-      div.appendChild(img);
-      grid.appendChild(div);
-      msnry.addItems(div);
-      msnry.layout();
-    };
-  }
+function LoadImage(url, name) {
+  var img = document.createElement("img");
+  img.classList = "grid-item-img";
+  img.src = url;
+  img.id = name;
+  img.onload = () => {
+    document.getElementById(name).appendChild(img);
+    msnry.layout();
+  };
 }
 
 //Scans given url for data type
@@ -193,7 +98,7 @@ function fetchImages(limit) {
     return;
   }
   fetchBuffer = true;
-
+  var posts = 0;
   var url =
     "https://www.reddit.com/r/" + subreddit + ".json" + "?limit=" + limit;
   if (LastPost() != "" && LastPost() != undefined) {
@@ -212,26 +117,144 @@ function fetchImages(limit) {
     .then((res) => res.json())
     .then((data) => data.data.children)
     .then((submission) => {
-      for (let index = 0; index < submission.length; index++) {
+      for (let index = 0; posts <= 12; index++) {
+        if (index == 50) {
+          return;
+        }
+
         LastPost(submission[index].data.name);
         if (checkURL(submission[index].data.url)) {
-          LoadImages(
-            submission[index].data.url,
-            false,
-            submission[index].data.name
-          );
+          if (document.getElementById(submission[index].data.name) != null) {
+            return;
+          }
+          const div = document.createElement("div");
+          div.classList = "grid-item";
+          div.id = submission[index].data.name;
+          grid.appendChild(div);
+          msnry.addItems(div);
+          LoadImage(submission[index].data.url, submission[index].data.name);
+          posts++;
         } else if (
           submission[index].data.media &&
           submission[index].data.media.reddit_video != undefined
         ) {
-          LoadImages(
+          if (document.getElementById(submission[index].data.name) != null) {
+            return;
+          }
+          const div = document.createElement("div");
+          div.classList = "grid-item";
+          div.id = submission[index].data.name;
+          grid.appendChild(div);
+          msnry.addItems(div);
+          videoArray[0].push(
+            submission[index].data.media.reddit_video.fallback_url
+          );
+          videoArray[1].push(submission[index].data.name);
+          posts++;
+          //console.log(videoArray);
+          /*LoadImages(
             submission[index].data.media.reddit_video.fallback_url,
             true,
             submission[index].data.name
-          );
+          );*/
         }
       }
+      if (!populatingVideos) {
+        loadVideo(videoArray[0], videoArray[1]);
+      }
+
       fetchBuffer = false;
     })
     .catch((err) => console.log(err));
+}
+
+function loadVideo(videoArray, idArray) {
+  populatingVideos = true;
+  console.log(videoArray, name);
+  var name = idArray.pop();
+  var url = videoArray.pop();
+  var source = document.createElement("source");
+  source.src = url;
+  var muteButtonImg = document.createElement("img");
+  muteButtonImg.src = "Images/mute-Image.png";
+  muteButtonImg.classList = "mute-button-img";
+  const $video = document.createElement("video");
+  const $audio = document.createElement("audio");
+  const $muteButton = document.createElement("button");
+
+  TestFunc(url)[1] ? null : ($audio.src = TestFunc(url)[0]);
+
+  $video.controls = "controls";
+  $video.preload = "loadedmetadata";
+  $video.id = name;
+  $video.src = url;
+  $video.classList = "grid-item-video";
+  $muteButton.classList = "mute-button";
+  $muteButton.textContent = "";
+  $audio.muted = true;
+  $audio.muted
+    ? (muteButtonImg.src = "Images/mute-Image.png")
+    : (muteButtonImg.src = "Images/unmute-Image.png");
+
+  $muteButton.addEventListener("click", function () {
+    if ($audio.muted) {
+      console.log("unmute");
+      $audio.muted = false;
+      muteButtonImg.src = "Images/unmute-Image.png";
+      return;
+    } else {
+      console.log("mute");
+      $audio.muted = true;
+      muteButtonImg.src = "Images/mute-Image.png";
+      return;
+    }
+  });
+  $($video)
+    .last()
+    .on("error", (event) => {
+      alert("an error accured: " + event.message);
+    });
+
+  $video.addEventListener("play", function () {
+    $video.preload = "auto";
+    if (!$audio.muted) {
+      $audio.play();
+    }
+
+    $audio.currentTime = $video.currentTime;
+  });
+  $video.addEventListener("waiting", function () {
+    $audio.pause();
+    $audio.currentTime = $video.currentTime;
+  });
+  $video.addEventListener("playing", function () {
+    if (!$audio.muted) {
+      $audio.play();
+    }
+    $audio.currentTime = $video.currentTime;
+  });
+  $video.addEventListener("pause", function () {
+    $audio.pause();
+    $video.preload = "none";
+    $audio.currentTime = $video.currentTime;
+  });
+
+  $video.addEventListener("timeupdate", function () {
+    if ($audio.muted) {
+      $audio.play();
+    }
+  });
+  $muteButton.appendChild(muteButtonImg);
+  $video.appendChild(source);
+  document.getElementById(name).appendChild($muteButton);
+  $video.addEventListener("loadedmetadata", function () {
+    document.getElementById(name).appendChild($video);
+    document.getElementById(name).appendChild($audio);
+    msnry.layout();
+    if (videoArray.length > 0) {
+      loadVideo(videoArray, idArray);
+    } else {
+      populatingVideos = false;
+    }
+  });
 }
