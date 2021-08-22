@@ -6,6 +6,7 @@ var subreddit = "aww/hot";
 var fetchBuffer = false;
 var isLoadingVideos = false;
 var videoArray = [[], [], []];
+var loadingContent = 0;
 
 fetchContent(50);
 console.log("TEST");
@@ -20,13 +21,19 @@ var msnry = new Masonry(elem, {
 });
 
 $(window).scroll(function () {
+  fetchMyContent();
+});
+
+function fetchMyContent() {
   if (
     $(window).scrollTop() + $(window).height() >=
     $(document).height() - window.innerHeight
   ) {
-    fetchContent(50);
+    if (loadingContent == 0) {
+      fetchContent(50);
+    }
   }
-});
+}
 
 // Reloads masonry layout
 function relaodLayout() {
@@ -166,11 +173,13 @@ function LoadVideo(vArray1, vArray3, vArray2) {
   $video.appendChild(source);
   $video.addEventListener("loadeddata", function () {
     if ($video.readyState >= 3) {
+      loadingContent--;
       document.getElementById("grid-item-img-placeholder" + name).remove();
       document.getElementById("grid-item-loading-img" + name).remove();
       div.appendChild($video);
       relaodLayout();
       LoadVideo(vArray1, vArray3, vArray2);
+      fetchMyContent();
     }
   });
 }
@@ -182,10 +191,12 @@ function LoadImage(url, div, name) {
   img.src = url;
   img.id = name;
   img.onload = () => {
+    loadingContent--;
     document.getElementById("grid-item-img-placeholder" + name).remove();
     document.getElementById("grid-item-loading-img" + name).remove();
     div.appendChild(img);
     relaodLayout();
+    fetchMyContent();
   };
 }
 
@@ -236,6 +247,7 @@ function fetchContent(limit) {
           if (!document.getElementById(submission[index].data.name)) {
             console.log(submission[index].data);
             posts++;
+            loadingContent++;
             var div = document.createElement("div");
             var div2 = document.createElement("div2");
             div2.classList = "grid-item-container";
@@ -270,6 +282,7 @@ function fetchContent(limit) {
         ) {
           console.log(submission[index].data);
           posts++;
+          loadingContent++;
           var div = document.createElement("div");
           var div2 = document.createElement("div2");
           div2.classList = "grid-item-container";
