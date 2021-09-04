@@ -17,9 +17,18 @@
       <img src="Images/Sprite-0001.png" alt="Menu" />
     </button>
     <!--MASONRY GRID-->
-    <div class="reserved-space">
-      <img src="Images/placeholder.com-logo1.png" />
-    </div>
+
+    <form
+      class="reddit-search-form"
+      onsubmit="return changeReddit()"
+      autocomplete="off"
+      style="padding: 6px; padding-top: 5vh; width: 100vw"
+    >
+      <div class="reddit-search-background">
+        <label for="subRedit">r/</label>
+        <input id="reddit-search-text" type="text" />
+      </div>
+    </form>
     <div class="storage-div" id="storage-div"></div>
     <div class="grid-sizer" id="grid-sizer">
       <div class="grid" id="grid"></div>
